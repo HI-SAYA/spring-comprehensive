@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+    <div class="header">
+    
+        <h1 align="center">This is Header</h1>
+        
+        <div align="right">
+        
+            <th:block sec:authorize="isAnonymous()">
+                <div>
+                    <input type="button" value="로그인" id="login">
+                </div>
+            </th:block>
+
+            <th:block sec:authorize="isAuthenticated()">
+                <div>
+                    <h3><span sec:authentication="principal.nickname"></span>님의 방문을 환영합니다.</h3>
+                    <div>
+                        <input type="button" value="정보수정" id="updateMember">
+                        <input type="button" value="로그아웃" id="logout">
+                    </div>
+                </div>
+            </th:block>
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <ul style="display:flex; list-style-type:none; justify-content:center;">
+                <li style="padding-right:20px;"><a href="/">홈으로</a></li>
+                <li style="padding-right:20px;"><a href="/board/list">게시판</a></li>
+                <li style="padding-right:20px;"><a href="/thumbnail/list">사진게시판</a></li>
+            </ul>
+        </div>
+    </div>
+
+</html>
+

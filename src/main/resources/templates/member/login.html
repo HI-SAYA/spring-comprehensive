@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <script type="text/javascript" src="/js/event.js"></script>
+    
+    <script>
+	    const message = '[[${message}]]';
+		message && alert(message);
+	</script>
+	
+</head>
+
+    <div class="login-container">
+
+        <h1 align="center">로그인</h1>
+        
+        <form id="loginForm" action="/member/login" method="post">
+            <table style="margin: 0 auto">
+                <tr>
+                    <td>
+                        <label class="text">ID : </label>
+                    </td>
+                    <td>
+                        <input type="text" name="memberId">
+                    </td>
+                    <td rowspan="2">
+                    	<input type="submit" style="height: 50px;" value="로그인" id="loginSubmit">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="text">PWD : </label>
+                    </td>
+                    <td>
+                        <input type="password" name="memberPwd">
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div class="btns" align="center">
+            <button style="width: 100px; border: none; background: none; color: grey; cursor: pointer;" id="regist">회원가입</button>
+            <button style="width: 100px; border: none; background: none; color: grey; cursor: pointer;" onclick="location.href='/'">돌아가기</button>
+        </div>
+    </div>
+
+</html>

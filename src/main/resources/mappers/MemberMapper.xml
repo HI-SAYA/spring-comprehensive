@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.comprehensive.member.dao.MemberMapper">
+
+	<resultMap id="memberResultMap" type="com.ohgiraffers.comprehensive.member.dto.MemberDTO">
+		<id property="memberNo" column="MEMBER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="memberPwd" column="MEMBER_PWD"/>
+		<result property="nickname" column="NICKNAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="address" column="ADDRESS"/>
+		<result property="enrollDate" column="ENROLL_DATE"/>
+		<result property="memberStatus" column="MEMBER_STATUS"/>
+		<collection property="memberRoleList" resultMap="memberRoleResultMap"/>
+	</resultMap>
+
+	<resultMap type="com.ohgiraffers.comprehensive.member.dto.MemberRoleDTO" id="memberRoleResultMap">
+		<id property="memberNo" column="REF_MEMBER_NO"/>
+		<id property="authorityCode" column="REF_AUTHORITY_CODE"/>
+		<association property="authority" resultMap="authorityResultMap"/>
+	</resultMap>
+
+    <resultMap type="com.ohgiraffers.comprehensive.member.dto.AuthorityDTO" id="authorityResultMap">
+		<id property="code" column="REF_AUTHORITY_CODE2"/>
+		<result property="name" column="AUTHORITY_NAME"/>
+		<result property="desc" column="AUTHORITY_DESC"/>
+	</resultMap>
+
+	<select id="findByMemberId" resultMap="memberResultMap">
+        SELECT
+               A.MEMBER_NO
+		     , A.MEMBER_ID
+             , A.MEMBER_PWD
+		     , A.NICKNAME
+		     , A.PHONE
+		     , A.EMAIL
+		     , A.ADDRESS
+		     , A.ENROLL_DATE
+		     , A.MEMBER_STATUS
+		     , B.MEMBER_NO REF_MEMBER_NO
+		     , B.AUTHORITY_CODE REF_AUTHORITY_CODE
+		     , C.AUTHORITY_CODE REF_AUTHORITY_CODE2
+		     , C.AUTHORITY_NAME
+		     , C.AUTHORITY_DESC
+          FROM TBL_MEMBER A
+          LEFT JOIN TBL_MEMBER_ROLE B ON (A.MEMBER_NO = B.MEMBER_NO)
+		  LEFT JOIN TBL_AUTHORITY C ON (B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+         WHERE A.MEMBER_STATUS = 'Y'
+           AND A.MEMBER_ID = #{ memberId }
+    </select>
+
+    <select id="selectMemberById" resultType="string">
+        SELECT
+               MEMBER_ID
+          FROM TBL_MEMBER
+         WHERE MEMBER_STATUS = 'Y'
+           AND MEMBER_ID = #{ memberId }
+    </select>
+
+    <insert id="insertMember">
+        INSERT
+          INTO TBL_MEMBER
+        (
+          MEMBER_NO
+        , MEMBER_ID
+        , MEMBER_PWD
+        , NICKNAME
+        , PHONE
+        , EMAIL
+        , ADDRESS
+        )
+        VALUES
+        (
+          SEQ_MEMBER_NO.NEXTVAL
+        , #{ memberId }
+        , #{ memberPwd }
+        , #{ nickname }
+        , #{ phone }
+        , #{ email }
+        , #{ address }
+        )
+	</insert>
+
+	<insert id="insertMemberRole">
+		INSERT
+          INTO TBL_MEMBER_ROLE
+        (
+          MEMBER_NO
+        , AUTHORITY_CODE
+        )
+        VALUES
+        (
+          SEQ_MEMBER_NO.CURRVAL
+        , 1
+        )
+	</insert>
+
+    <select id="selectEncryptedPwd" resultType="string">
+        SELECT
+               MEMBER_PWD
+          FROM TBL_MEMBER
+         WHERE MEMBER_STATUS = 'Y'
+           AND MEMBER_ID = #{ memberId }
+	</select>
+
+	<select id="selectMember">
+		SELECT
+			   MEMBER_NO
+		     , MEMBER_ID
+		     , NICKNAME
+		     , PHONE
+		     , EMAIL
+		     , ADDRESS
+		     , ENROLL_DATE
+		     , MEMBER_ROLE
+		     , MEMBER_STATUS
+		 FROM  TBL_MEMBER A
+		WHERE  MEMBER_STATUS = 'Y'
+		  AND  MEMBER_ID = #{ memberId }
+	</select>
+
+    <update id="updateMember">
+        UPDATE
+              TBL_MEMBER
+          SET NICKNAME = #{ nickname }
+            , PHONE = #{ phone }
+            , EMAIL = #{ email }
+            , ADDRESS = #{ address }
+        WHERE MEMBER_STATUS = 'Y'
+          AND MEMBER_NO = #{ memberNo }
+    </update>
+
+    <update id="deleteMember">
+        UPDATE
+              TBL_MEMBER
+          SET MEMBER_STATUS = 'N'
+        WHERE MEMBER_STATUS = 'Y'
+          AND MEMBER_ID = #{ memberId }
+    </update>
+
+</mapper>
