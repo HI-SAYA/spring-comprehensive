@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8" />
+    <script type="text/javascript" src="/js/event.js"></script>
+</head>
+<body>
+<div th:replace="common/header.html"></div>
+
+<div style="margin-top: 100px;">
+    <h1 align="center">게시판 내용</h1>
+    <div>
+        <table style="margin: auto">
+            <tr>
+                <td>분야</td>
+                <td><p th:text="${ board.category.name }"></p></td>
+            </tr>
+            <tr>
+                <td>작성자</td>
+                <td><p th:text="${ board.writer.nickname }"></p></td>
+            </tr>
+            <tr>
+                <td>제목</td>
+                <td colspan="3"><p th:text="${ board.title }"></p></td>
+            </tr>
+            <tr>
+                <td>내용</td>
+                <td colspan="3"><textarea name="body" cols="60" rows="15"
+                                          style="resize: none;" readonly th:text="${ board.body }">
+                                </textarea></td>
+            </tr>
+        </table>
+
+        <!-- 댓글 작성용 table -->
+        <table id="replyWrite" style="margin: auto;">
+
+            <tr>
+                <td>댓글</td>
+                <td><textarea cols="40" rows="3" id="replyBody"
+                              style="resize: none;"></textarea></td>
+                <td><button type="button" id="registReply">작성하기</button></td>
+            </tr>
+        </table>
+
+        <!-- 댓글 내용 출력용 table -->
+        <table id="replyResult" style="margin: auto;">
+            <tr th:each="reply : ${ board.replyList }">
+                <td th:text="${ reply.body }"></td>
+                <td th:text="${ reply.writer.nickname }"></td>
+                <td th:text="${ reply.createdDate }"></td>
+                <td th:if="${ reply.writer.memberNo == #authentication.principal.memberNo }">
+                    <button th:onclick="removeReply([[${reply.no}]])">댓글 삭제</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div align="center">
+        <button type="button" th:onclick="'location.href=\'/board/list\''">
+            돌아가기</button>
+    </div>
+
+</div>
+<div th:replace="common/footer.html"></div>
+
+<script>
+    /* 비동기 통신 예제 */
+
+    /* 댓글 작성 */
+    if(document.getElementById("registReply")) {
+        const $registReply = document.getElementById('registReply');
+        const $replyBody = document.getElementById('replyBody');
+
+        $registReply.onclick = function() {
+
+            if (!$replyBody.value.trim()) {
+                alert('내용을 작성해주세요');
+                return;
+            }
+
+            const refBoardNo = '[[${board.no}]]';
+            const body = $replyBody.value;
+
+            fetch('/board/registReply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8'
+                },
+                body: JSON.stringify({refBoardNo, body})
+            })
+            .then(res => {
+            // 댓글 창 비우기
+            $replyBody.value = '';
+            // 최신 댓글 다시 로드하여 입력 된 댓글 확인할 수 있도록 하기
+            loadReply();
+            })
+            .catch(error => console.log(error));
+
+        }
+    }
+
+    /* 댓글 삽입 or 삭제 발생 시 최신 댓글을 다시 로드하는 기능 */
+    function loadReply() {
+
+        const refBoardNo = `[[${board.no}]]`;
+
+        fetch('/board/loadReply?refBoardNo=' + refBoardNo)
+            .then(result => result.json())
+            .then(data => makeReplyTable(data))
+            .catch(error => console.log(error));
+    }
+
+    /* 댓글 목록 데이터를 테이블화 하는 함수 */
+    function makeReplyTable(replyList) {
+        const $table = document.querySelector('#replyResult');
+        $table.innerHTML = '';
+
+        replyList.forEach(reply => {
+
+            const $tr = document.createElement('tr');
+            const $replyBodyTd = document.createElement('td');
+            const $nicknameTd = document.createElement('td');
+            const $createdDateTd = document.createElement('td');
+            const $buttonTd = document.createElement('td');
+
+            $replyBodyTd.textContent = reply.body;
+            $nicknameTd.textContent = reply.writer.nickname;
+            $createdDateTd.textContent = reply.createdDate;
+
+            if(`[[${#authentication.principal.memberNo}]]` == reply.writer.memberNo) {
+                $buttonTd.innerHTML = `<button onclick='removeReply(${reply.no})'>댓글삭제</button>`;
+            }
+
+            $tr.append($replyBodyTd, $nicknameTd, $createdDateTd, $buttonTd);
+            $table.append($tr);
+        });
+    }
+
+    /* 댓글 삭제 */
+    function removeReply(replyNo) {
+
+        fetch('/board/removeReply', {
+            method : 'POST',
+            headers : {
+                'Content-Type' : 'application/json; charset=UTF-8'
+            },
+            body : JSON.stringify({ no : replyNo })
+        })
+            .then(() => loadReply())
+            .catch(error => console.log(error));
+    }
+</script>
+
+</body>
+</html>

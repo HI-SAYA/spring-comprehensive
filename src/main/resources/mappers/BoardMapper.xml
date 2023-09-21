@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.comprehensive.board.dao.BoardMapper">
+
+      <resultMap type="com.ohgiraffers.comprehensive.board.dto.BoardDTO" id="generalBoardResultMap">
+          <id property="no" column="BOARD_NO"/>
+          <result property="type" column="BOARD_TYPE"/>
+          <result property="categoryCode" column="CATEGORY_CODE"/>
+          <result property="title" column="BOARD_TITLE"/>
+          <result property="body" column="BOARD_BODY"/>
+          <result property="writerMemberNo" column="BOARD_WRITER_MEMBER_NO"/>
+          <result property="count" column="BOARD_COUNT"/>
+          <result property="createdDate" column="CREATED_DATE"/>
+          <result property="modifiedDate" column="MODIFIED_DATE"/>
+          <result property="status" column="BOARD_STATUS"/>
+
+          <association property="writer" resultMap="memberResultMap"/>
+          <association property="category" resultMap="categoryResultMap"/>
+          <collection property="replyList" resultMap="replyResultMap"/>
+      </resultMap>
+
+      <resultMap type="com.ohgiraffers.comprehensive.member.dto.MemberDTO" id="memberResultMap">
+          <id property="memberNo" column="MEMBER_NO"/>
+          <result property="memberId" column="MEMBER_ID"/>
+          <result property="memberPwd" column="MEMBER_PWD"/>
+          <result property="nickname" column="NICKNAME"/>
+          <result property="phone" column="PHONE"/>
+          <result property="email" column="EMAIL"/>
+          <result property="address" column="ADDRESS"/>
+          <result property="enrollDate" column="ENROLL_DATE"/>
+          <result property="memberRole" column="MEMBER_ROLE"/>
+          <result property="memberStatus" column="MEMBER_STATUS"/>
+      </resultMap>
+
+      <resultMap type="com.ohgiraffers.comprehensive.board.dto.CategoryDTO" id="categoryResultMap">
+          <id property="code" column="CATEGORY_CODE"/>
+          <result property="name" column="CATEGORY_NAME"/>
+      </resultMap>
+
+       <resultMap type="com.ohgiraffers.comprehensive.board.dto.ReplyDTO" id="replyResultMap">
+             <id property="no" column="REPLY_NO"/>
+             <result property="refBoardNo" column="REF_BOARD_NO"/>
+             <result property="body" column="REPLY_BODY"/>
+             <result property="status" column="REPLY_STATUS"/>
+             <result property="createdDate" column="R_CREATED_DATE"/>
+
+             <association property="writer" javaType="com.ohgiraffers.comprehensive.member.dto.MemberDTO">
+                 <id property="memberNo" column="R_MEMBER_NO"/>
+                 <result property="memberId" column="MEMBER_ID"/>
+                 <result property="memberPwd" column="MEMBER_PWD"/>
+                 <result property="nickname" column="R_NICKNAME"/>
+                 <result property="phone" column="PHONE"/>
+                 <result property="email" column="EMAIL"/>
+                 <result property="address" column="ADDRESS"/>
+                 <result property="enrollDate" column="ENROLL_DATE"/>
+                 <result property="memberRole" column="MEMBER_ROLE"/>
+                 <result property="memberStatus" column="MEMBER_STATUS"/>
+             </association>
+         </resultMap>
+    <!--
+
+          <resultMap type="com.ohgiraffers.comprehensive.board.dto.BoardDTO" id="thumbnailBoardResultMap">
+              <id property="no" column="BOARD_NO"/>
+              <result property="type" column="BOARD_TYPE"/>
+              <result property="categoryCode" column="CATEGORY_CODE"/>
+              <result property="title" column="BOARD_TITLE"/>
+              <result property="body" column="BOARD_BODY"/>
+              <result property="writerMemberNo" column="BOARD_WRITER_MEMBER_NO"/>
+              <result property="count" column="BOARD_COUNT"/>
+              <result property="createdDate" column="CREATED_DATE"/>
+              <result property="modifiedDate" column="MODIFIED_DATE"/>
+              <result property="status" column="BOARD_STATUS"/>
+
+              <association property="writer" resultMap="memberResultMap"/>
+              <collection property="attachmentList" resultMap="attachmentResultMap"/>
+
+          </resultMap>
+
+
+          <resultMap type="com.ohgiraffers.comprehensive.board.dto.AttachmentDTO" id="attachmentResultMap">
+              <id property="no" column="ATTACHMENT_NO"></id>
+              <result property="refBoardNo" column="REF_BOARD_NO"/>
+              <result property="originalName" column="ORIGINAL_NAME"/>
+              <result property="savedName" column="SAVED_NAME"/>
+              <result property="savePath" column="SAVE_PATH"/>
+              <result property="fileType" column="FILE_TYPE"/>
+              <result property="thumbnailPath" column="THUMBNAIL_PATH"/>
+              <result property="status" column="ATTACHMENT_STATUS"/>
+
+          </resultMap>
+          -->
+
+
+    <select id="selectTotalCount" resultType="_int" parameterType="hashmap">
+        SELECT
+             COUNT(*)
+        FROM TBL_BOARD A
+        <if test="searchCondition == 'category'">
+            JOIN TBL_CATEGORY B ON(A.CATEGORY_CODE = B.CATEGORY_CODE)
+        </if>
+        <if test="searchCondition == 'writer'">
+            JOIN TBL_MEMBER B ON(A.BOARD_WRITER_MEMBER_NO = B.MEMBER_NO)
+        </if>
+        <where>
+            <if test="searchCondition == 'category'">
+                B.CATEGORY_NAME = #{ searchValue }
+            </if>
+            <if test="searchCondition == 'writer'">
+                B.NICKNAME LIKE '%' || #{ searchValue } || '%'
+            </if>
+            <if test="searchCondition == 'title'">
+                A.BOARD_TITLE LIKE '%' || #{ searchValue } || '%'
+            </if>
+            <if test="searchCondition == 'content'">
+                A.BOARD_BODY LIKE '%' || #{ searchValue } || '%'
+            </if>
+            AND A.BOARD_STATUS = 'Y'
+        </where>
+    </select>
+
+     <select id="selectBoardList" resultMap="generalBoardResultMap">
+         SELECT
+                A.BOARD_NO
+              , A.BOARD_TYPE
+              , A.CATEGORY_CODE
+              , D.CATEGORY_NAME
+              , A.BOARD_TITLE
+              , A.BOARD_BODY
+              , A.BOARD_WRITER_MEMBER_NO
+              , E.NICKNAME
+              , A.BOARD_COUNT
+              , A.CREATED_DATE
+              , A.BOARD_STATUS
+           FROM (SELECT
+                        ROWNUM RNUM <!-- 행의 번호 -->
+                      , B.BOARD_NO
+                      , B.BOARD_TYPE
+                      , B.CATEGORY_CODE
+                      , B.BOARD_TITLE
+                      , B.BOARD_BODY
+                      , B.BOARD_WRITER_MEMBER_NO
+                      , B.BOARD_COUNT
+                      , B.CREATED_DATE
+                      , B.BOARD_STATUS
+                   FROM (SELECT
+                                C.BOARD_NO
+                              , C.BOARD_TYPE
+                              , C.CATEGORY_CODE
+                              , C.BOARD_TITLE
+                              , C.BOARD_BODY
+                              , C.BOARD_WRITER_MEMBER_NO
+                              , C.BOARD_COUNT
+                              , C.CREATED_DATE
+                              , C.BOARD_STATUS
+                           FROM TBL_BOARD C
+         <if test="searchCondition == 'category'">
+             JOIN TBL_CATEGORY D ON(C.CATEGORY_CODE = D.CATEGORY_CODE)
+         </if>
+         <if test="searchCondition == 'writer'">
+             JOIN TBL_MEMBER D ON(C.BOARD_WRITER_MEMBER_NO = D.MEMBER_NO)
+         </if>
+         <where>
+             <if test="searchCondition == 'category'">
+                 D.CATEGORY_NAME = #{ searchValue }
+             </if>
+             <if test="searchCondition == 'writer'">
+                 D.NICKNAME LIKE '%' || #{ searchValue } || '%'
+             </if>
+             <if test="searchCondition == 'title'">
+                 C.BOARD_TITLE LIKE '%' || #{ searchValue } || '%'
+             </if>
+             <if test="searchCondition == 'content'">
+                 C.BOARD_BODY LIKE '%' || #{ searchValue } || '%'
+             </if>
+             AND C.BOARD_STATUS = 'Y'
+             AND C.BOARD_TYPE = 1
+         </where>
+         ORDER BY C.BOARD_NO DESC <!-- 최신글 순서 -->
+         ) B
+         <![CDATA[
+                   WHERE ROWNUM <= #{ endRow }
+                   ]]>
+         ) A
+         JOIN TBL_CATEGORY D ON (A.CATEGORY_CODE = D.CATEGORY_CODE)
+         JOIN TBL_MEMBER E ON(A.BOARD_WRITER_MEMBER_NO = E.MEMBER_NO)
+         WHERE A.RNUM >= #{ startRow }
+         ORDER BY 1 DESC
+     </select>
+
+     <update id="incrementBoardCount">
+         UPDATE
+             TBL_BOARD A
+         SET A.BOARD_COUNT = A.BOARD_COUNT + 1
+         WHERE A.BOARD_NO = #{ no }
+     </update>
+
+     <select id="selectBoardDetail" resultMap="generalBoardResultMap">
+         SELECT
+                A.BOARD_NO
+              , A.BOARD_TITLE
+              , A.BOARD_BODY
+              , A.BOARD_WRITER_MEMBER_NO
+              , B.MEMBER_NO
+              , B.NICKNAME
+              , A.BOARD_COUNT
+              , A.CREATED_DATE
+              , C.CATEGORY_NAME
+              , D.REPLY_NO
+              , D.REPLY_BODY
+              , D.CREATED_DATE R_CREATED_DATE
+              , E.MEMBER_NO R_MEMBER_NO
+              , E.NICKNAME R_NICKNAME
+         FROM TBL_BOARD A
+         JOIN TBL_MEMBER B ON (A.BOARD_WRITER_MEMBER_NO = B.MEMBER_NO)
+         JOIN TBL_CATEGORY C ON (A.CATEGORY_CODE = C.CATEGORY_CODE)
+         LEFT JOIN TBL_REPLY D ON (A.BOARD_NO = D.REF_BOARD_NO AND D.REPLY_STATUS = 'Y')
+         LEFT JOIN TBL_MEMBER E ON (D.REPLY_WRITER_MEMBER_NO = E.MEMBER_NO)
+         WHERE A.BOARD_STATUS = 'Y'
+           AND A.BOARD_NO = #{ no }
+         ORDER BY D.REPLY_NO
+     </select>
+
+     <insert id="insertReply">
+         INSERT
+         INTO TBL_REPLY A
+         (
+           A.REPLY_NO
+         , A.REF_BOARD_NO
+         , A.REPLY_BODY
+         , A.REPLY_WRITER_MEMBER_NO
+         )
+         VALUES
+         (
+         SEQ_REPLY_NO.NEXTVAL
+         , #{ refBoardNo }
+         , #{ body }
+         , #{ writer.memberNo }
+         )
+     </insert>
+
+     <select id="selectReplyList" resultMap="replyResultMap">
+         SELECT
+                A.REPLY_NO
+              , A.REF_BOARD_NO
+              , A.REPLY_BODY
+              , A.REPLY_WRITER_MEMBER_NO
+              , A.CREATED_DATE R_CREATED_DATE
+              , B.MEMBER_NO R_MEMBER_NO
+              , B.NICKNAME R_NICKNAME
+         FROM TBL_REPLY A
+         JOIN TBL_MEMBER B ON (A.REPLY_WRITER_MEMBER_NO = B.MEMBER_NO)
+         WHERE A.REPLY_STATUS = 'Y'
+           AND A.REF_BOARD_NO = #{ refBoardNo }
+         ORDER BY A.REPLY_NO
+     </select>
+
+     <update id="deleteReply">
+         UPDATE TBL_REPLY A
+            SET A.REPLY_STATUS = 'N'
+          WHERE A.REPLY_NO = #{ no }
+     </update>
+
+         <insert id="insertBoard">
+             INSERT
+             INTO TBL_BOARD A
+             (
+               A.BOARD_NO
+             , A.BOARD_TYPE
+             , A.CATEGORY_CODE
+             , A.BOARD_TITLE
+             , A.BOARD_BODY
+             , A.BOARD_WRITER_MEMBER_NO
+             )
+             VALUES
+             (
+             SEQ_BOARD_NO.NEXTVAL
+             , 1
+             , #{ category.code }
+             , #{ title }
+             , #{ body }
+             , #{ writer.memberNo }
+             )
+         </insert>
+<!--
+         <insert id="insertThumbnailContent" >
+             INSERT
+             INTO TBL_BOARD A
+             (
+               A.BOARD_NO
+             , A.BOARD_TYPE
+             , A.BOARD_TITLE
+             , A.BOARD_BODY
+             , A.BOARD_WRITER_MEMBER_NO
+             )
+             VALUES
+             (
+             SEQ_BOARD_NO.NEXTVAL
+             , 2
+             , #{ title }
+             , #{ body }
+             , #{ writer.memberNo }
+             )
+         </insert>
+
+         <insert id="insertAttachment">
+             INSERT
+             INTO TBL_ATTACHMENT A
+                 (
+               A.ATTACHMENT_NO
+             , A.REF_BOARD_NO
+             , A.ORIGINAL_NAME
+             , A.SAVED_NAME
+             , A.SAVE_PATH
+             , A.FILE_TYPE
+             , A.THUMBNAIL_PATH
+             )
+             VALUES
+             (
+                 SEQ_ATTACHMENT_NO.NEXTVAL
+                 , SEQ_BOARD_NO.CURRVAL
+                 , #{ originalName }
+                 , #{ savedName }
+                 , #{ savePath }
+                 , #{ fileType }
+                 , #{ thumbnailPath, jdbcType=VARCHAR }
+             )
+         </insert>
+
+         <select id="selectThumbnailTotalCount" resultType="_int">
+             SELECT
+                    COUNT(*)
+               FROM TBL_BOARD A
+              WHERE A.BOARD_TYPE = 2
+                AND A.BOARD_STATUS = 'Y'
+         </select>
+
+         <select id="selectThumbnailBoardList" resultMap="thumbnailBoardResultMap">
+             SELECT
+                    A.BOARD_NO
+                  , A.BOARD_TYPE
+                  , D.FILE_TYPE
+                  , D.THUMBNAIL_PATH
+                  , A.BOARD_TITLE
+                  , A.BOARD_BODY
+                  , A.BOARD_WRITER_MEMBER_NO
+                  , E.NICKNAME
+                  , A.BOARD_COUNT
+                  , A.CREATED_DATE
+                  , A.BOARD_STATUS
+               FROM (SELECT
+                            ROWNUM RNUM
+                          , B.BOARD_NO
+                          , B.BOARD_TYPE
+                          , B.BOARD_TITLE
+                          , B.BOARD_BODY
+                          , B.BOARD_WRITER_MEMBER_NO
+                          , B.BOARD_COUNT
+                          , B.CREATED_DATE
+                          , B.BOARD_STATUS
+                       FROM (SELECT
+                                    C.BOARD_NO
+                                  , C.BOARD_TYPE
+                                  , C.BOARD_TITLE
+                                  , C.BOARD_BODY
+                                  , C.BOARD_WRITER_MEMBER_NO
+                                  , C.BOARD_COUNT
+                                  , C.CREATED_DATE
+                                  , C.BOARD_STATUS
+                               FROM TBL_BOARD C
+                              WHERE C.BOARD_STATUS = 'Y'
+                                AND C.BOARD_TYPE = 2
+                              ORDER BY C.BOARD_NO DESC
+                             ) B
+             <![CDATA[
+                       WHERE ROWNUM <= #{ endRow }
+                       ]]>
+             ) A
+             JOIN TBL_ATTACHMENT D ON (A.BOARD_NO = D.REF_BOARD_NO)
+             JOIN TBL_MEMBER E ON(A.BOARD_WRITER_MEMBER_NO = E.MEMBER_NO)
+             WHERE A.RNUM >= #{ startRow }
+             ORDER BY 1 DESC
+         </select>
+
+         <select id="selectThumbnailBoardDetail" resultMap="thumbnailBoardResultMap">
+             SELECT
+                    A.BOARD_NO
+                  , A.BOARD_TITLE
+                  , A.BOARD_BODY
+                  , A.BOARD_WRITER_MEMBER_NO
+                  , B.NICKNAME
+                  , A.BOARD_COUNT
+                  , A.CREATED_DATE
+                  , C.ATTACHMENT_NO
+                  , C.ORIGINAL_NAME
+                  , C.SAVED_NAME
+                  , C.SAVE_PATH
+                  , C.FILE_TYPE
+                  , C.THUMBNAIL_PATH
+             FROM TBL_BOARD A
+              JOIN TBL_MEMBER B ON (A.BOARD_WRITER_MEMBER_NO = B.MEMBER_NO)
+              JOIN TBL_ATTACHMENT C ON (A.BOARD_NO = C.REF_BOARD_NO)
+             WHERE A.BOARD_STATUS = 'Y'
+               AND C.ATTACHMENT_STATUS = 'Y'
+               AND A.BOARD_NO = #{ no }
+         </select>
+     -->
+</mapper>

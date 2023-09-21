@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>boardlist</title>
+    <script src="/js/event.js" type="text/javascript"></script>
+</head>
+<body>
+    <div th:replace="common/header.html"></div>
+
+    <div align="center">
+        <h2>게시판</h2>
+        <table id="listArea" style="text-align:center">
+            <tr>
+                <th>글번호</th>
+                <th>카테고리</th>
+                <th>글제목</th>
+                <th>작성자</th>
+                <th>조회수</th>
+                <th>작성일</th>
+            </tr>
+            <tr th:each="board : ${ boardList }" th:onclick="|location.href='/board/detail?no=${board.no}'|">
+                <td th:text="${ board.no }"></td>
+                <td th:text="${ board.category.name }"></td>
+                <td th:text="${ board.title }"></td>
+                <td th:text="${ board.writer.nickname }"></td>
+                <td th:text="${ board.count }"></td>
+                <td th:text="${ board.createdDate }"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 페이징 바 -->
+    <div id="paging" align="center" style="margin-top: 20px;">
+
+        <th:block
+                th:if="${ paging.searchCondition != null and paging.searchValue != null }">
+            <!-- 맨 앞으로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=1&searchCondition=' + @{${paging.searchCondition}} + '&searchValue=' + @{${paging.searchValue}} + '\''">&lt;&lt;</button>
+
+            <!-- 이전 페이지로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=' + @{${paging.page - 1}} + '&searchCondition=' + @{${paging.searchCondition}} + '&searchValue=' + @{${paging.searchValue}} + '\''"
+                    th:disabled="${ paging.page <= 1 }">&lt;</button>
+
+            <!-- 숫자 버튼 -->
+            <th:block
+                    th:each="page : ${ #numbers.sequence(paging.startPage, paging.endPage)}">
+                <button
+                        th:onclick="'location.href=\'/board/list?page=' + @{${page}} + '&searchCondition=' + @{${paging.searchCondition}} + '&searchValue=' + @{${paging.searchValue}} + '\''"
+                        th:text="${ page }" th:disabled="${ paging.page eq page }">
+                </button>
+            </th:block>
+
+            <!-- 다음 페이지로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=' + @{${paging.page + 1}} + '&searchCondition=' + @{${paging.searchCondition}} + '&searchValue=' + @{${paging.searchValue}} + '\''"
+                    th:disabled="${ paging.page >= paging.maxPage }">></button>
+
+            <!-- 맨 끝으로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=' + @{${paging.maxPage}} + '&searchCondition=' + @{${paging.searchCondition}} + '&searchValue=' + @{${paging.searchValue}} + '\''">>></button>
+
+        </th:block>
+
+        <th:block
+                th:if="${ paging.searchCondition == null || paging.searchValue == null }">
+            <!-- 맨 앞으로 이동 -->
+            <button th:onclick="'location.href=\'/board/list?page=1\''">&lt;&lt;</button>
+
+            <!-- 이전 페이지로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=' + @{${paging.page - 1}} + '\''"
+                    th:disabled="${ paging.page <= 1 }">&lt;</button>
+
+            <!-- 숫자 버튼 -->
+            <th:block
+                    th:each="page : ${ #numbers.sequence(paging.startPage, paging.endPage)}">
+                <button
+                        th:onclick="'location.href=\'/board/list?page=' + @{${page}} + '\''"
+                        th:text="${ page }" th:disabled="${ paging.page eq page }">
+                </button>
+            </th:block>
+
+            <!-- 다음 페이지로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=' + @{${paging.page + 1}} + '\''"
+                    th:disabled="${ paging.page >= paging.maxPage }">></button>
+
+            <!-- 맨 끝으로 이동 -->
+            <button
+                    th:onclick="'location.href=\'/board/list?page=' + @{${paging.maxPage}} + '\''">>></button>
+        </th:block>
+
+    </div>
+
+    <div align="center">
+        <form id="searchForm" action="/board/list" style="display: inline-block">
+            <select id="searchCondition" name="searchCondition">
+                <option value="category" th:selected="${ paging.searchCondition eq 'category'}">카테고리</option>
+                <option value="writer" th:selected="${ paging.searchCondition eq 'writer'}">작성자</option>
+                <option value="title" th:selected="${ paging.searchCondition eq 'title'}">제목</option>
+                <option value="content" th:selected="${ paging.searchCondition eq 'content'}">내용</option>
+            </select>
+            <input type="search" id="searchValue" name="searchValue" th:value="${ paging.searchValue }">
+            <button type="submit">검색하기</button>
+            <button type="button" id="writeBoard">작성하기</button>
+        </form>
+    </div>
+
+    <div th:replace="common/footer.html"></div>
+
+</body>
+</html>
