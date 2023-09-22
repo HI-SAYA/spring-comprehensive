@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:replace="common/header.html"></div>
+<div style="margin-top:100px";>
+    <h1>사진 게시판 내용</h1>
+    <table align="center">
+        <tr>
+            <td>제목</td>
+            <td colspan="5" th:text="${thumbnail.title}"></td>
+        </tr>
+        <tr>
+            <td>작성자</td>
+            <td th:text="${thumbnail.writer.nickname}"></td>
+            <td>조회수</td>
+            <td th:text="${thumbnail.count}"></td>
+            <td>작성일</td>
+            <td th:text="${thumbnail.createdDate}"></td>
+        </tr>
+        <tr>
+            <td>대표사진</td>
+            <td colspan="5">
+                <div id="titleImgArea" align="center">
+                    <th:block th:if="${ thumbnail.attachmentList[0].thumbnailPath != null }">
+                        <img width="500" height="300" th:src="${thumbnail.attachmentList[0].thumbnailPath }">
+                        <br>
+                        <a th:href="${ thumbnail.attachmentList[0].savePath + thumbnail.attachmentList[0].savedName }"
+                           th:download="${ thumbnail.attachmentList[0].originalName }">
+                            <span th:text="${ thumbnail.attachmentList[0].originalName }"></span>
+                        </a>
+                    </th:block>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>사진메모</td>
+            <td colspan="5">
+                <p id="contentArea" th:text="${ thumbnail.body }"></p>
+            </td>
+        </tr>
+    </table>
+    <table align="center">
+        <tr>
+            <th:block
+                    th:if="${ thumbnail.attachmentList.size() > 1 }"
+                    th:each="index : ${ #numbers.sequence(1, thumbnail.attachmentList.size() - 1) }"
+            >
+                <td>
+                    <div>
+                        <img
+                                class="detailImgArea"
+                                width="250"
+                                height="180"
+                                th:src="${ thumbnail.attachmentList[index].savePath + thumbnail.attachmentList[index].savedName }"
+                        ><br>
+                        <a th:href="${ thumbnail.attachmentList[index].savePath + thumbnail.attachmentList[index].savedName }"
+                           th:download="${ thumbnail.attachmentList[index].originalName }">
+                            <span th:text="${ thumbnail.attachmentList[index].originalName }"></span>
+                        </a>
+                    </div>
+                </td>
+            </th:block>
+        </tr>
+    </table>
+    <div align="center" style="margin-top:20px;">
+        <button type="button" onclick="location.href='/thumbnail/list'">목록으로</button>
+    </div>
+</div>
+<div th:replace="common/footer.html"></div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.ohgiraffers.comprehensive.board.dao;
 
+import com.ohgiraffers.comprehensive.board.dto.AttachmentDTO;
 import com.ohgiraffers.comprehensive.board.dto.BoardDTO;
 import com.ohgiraffers.comprehensive.board.dto.ReplyDTO;
 import com.ohgiraffers.comprehensive.common.paging.SelectCriteria;
@@ -24,5 +25,15 @@ public interface BoardMapper {
 
     void deleteReply(ReplyDTO removeReply);
 
-    void insertBoard(BoardDTO Board);
+    void insertBoard(BoardDTO board);
+
+    void insertThumbnailContent(BoardDTO board);
+
+    void insertAttachment(AttachmentDTO attachment);
+
+    int selectThumbnailTotalCount();
+
+    List<BoardDTO> selectThumbnailBoardList(SelectCriteria selectCriteria);
+
+    BoardDTO selectThumbnailBoardDetail(Long no);
 }

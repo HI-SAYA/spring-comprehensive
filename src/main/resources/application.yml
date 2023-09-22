@@ -6,6 +6,20 @@ spring:
     username: C##SPRING
     password: SPRING
 
+# file upload config
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      location: C:/Lecture/10_Spring/04_spring-comprehensive/chap01-comprehensive-lecture-source
+
 #Mybatis config
 mybatis:
   mapper-locations: mappers/**/*.xml
+
+# image upload dir
+image:
+  image-dir: src/main/resources/upload/
+
+  # 앞을 비워두면 상대경로이다.(' 'src/main ...)
+

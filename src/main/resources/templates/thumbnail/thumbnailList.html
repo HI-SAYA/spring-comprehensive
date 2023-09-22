@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="/js/event.js"></script>
+</head>
+<body>
+
+<div th:replace="common/header.html"></div>
+
+<div style="margin-top:100px;">
+    <h1 align="center">사진 게시판</h1>
+    <div
+            id="thumbnailArea"
+            style="width: 1080px; margin: auto; display: flex; justify-content: center; flex-wrap: wrap;"
+    >
+        <th:block th:each="thumbnail : ${thumbnailList}">
+            <div align="center" style="margin: 20px; cursor: pointer"
+                 th:onclick="|location.href='/thumbnail/detail?no=${thumbnail.no}'|">
+                <div>
+                    <th:block th:each="attachment : ${thumbnail.attachmentList}">
+                        <img th:if="${ attachment.fileType == 'TITLE' }"
+                             th:src="${ attachment.thumbnailPath }"
+                             width="300px"
+                             height="300px"
+                        >
+                    </th:block>
+                </div>
+                <p>
+                    No. <label th:text="${thumbnail.no}"></label>
+                    <span th:text="${thumbnail.title}"></span><br>
+                    조회수 : <span th:text="${thumbnail.count}"></span>
+                </p>
+            </div>
+        </th:block>
+
+    </div>
+
+    <div id="paging" align="center">
+        <!-- 맨 앞으로 이동 -->
+        <button th:onclick="'location.href=\'/thumbnail/list?page=1\''">&lt;&lt;</button>
+
+        <!-- 이전 페이지로 이동 -->
+        <button
+                th:onclick="'location.href=\'/thumbnail/list?page=' + @{${paging.page - 1}} + '\''"
+                th:disabled="${ paging.page <= 1 }">&lt;</button>
+
+        <!-- 숫자 버튼 -->
+        <th:block
+                th:each="page : ${ #numbers.sequence(paging.startPage, paging.endPage)}">
+            <button
+                    th:onclick="'location.href=\'/thumbnail/list?page=' + @{${page}} + '\''"
+                    th:text="${ page }" th:disabled="${ paging.page eq page }">
+            </button>
+        </th:block>
+
+        <!-- 다음 페이지로 이동 -->
+        <button
+                th:onclick="'location.href=\'/thumbnail/list?page=' + @{${paging.page + 1}} + '\''"
+                th:disabled="${ paging.page >= paging.maxPage }">></button>
+
+        <!-- 맨 끝으로 이동 -->
+        <button
+                th:onclick="'location.href=\'/thumbnail/list?page=' + @{${paging.maxPage}} + '\''">>></button>
+        </th:block>
+    </div>
+
+    <div align="center" style="margin-top:20px">
+        <button id="writeThumbnail">작성하기</button>
+    </div>
+
+</div>
+
+
+<div th:replace="common/footer.html"></div>
+</body>
+</html>

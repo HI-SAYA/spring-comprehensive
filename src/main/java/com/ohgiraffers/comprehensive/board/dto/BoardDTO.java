@@ -25,4 +25,5 @@ public class BoardDTO {
     private Date modifiedDate;
     private String status;
     private List<ReplyDTO> replyList;
+    private List<AttachmentDTO> attachmentList;
 }

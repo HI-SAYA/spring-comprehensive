@@ -59,7 +59,7 @@
                  <result property="memberStatus" column="MEMBER_STATUS"/>
              </association>
          </resultMap>
-    <!--
+
 
           <resultMap type="com.ohgiraffers.comprehensive.board.dto.BoardDTO" id="thumbnailBoardResultMap">
               <id property="no" column="BOARD_NO"/>
@@ -90,7 +90,7 @@
               <result property="status" column="ATTACHMENT_STATUS"/>
 
           </resultMap>
-          -->
+
 
 
     <select id="selectTotalCount" resultType="_int" parameterType="hashmap">
@@ -283,7 +283,7 @@
              , #{ writer.memberNo }
              )
          </insert>
-<!--
+
          <insert id="insertThumbnailContent" >
              INSERT
              INTO TBL_BOARD A
@@ -383,27 +383,27 @@
              ORDER BY 1 DESC
          </select>
 
-         <select id="selectThumbnailBoardDetail" resultMap="thumbnailBoardResultMap">
-             SELECT
-                    A.BOARD_NO
-                  , A.BOARD_TITLE
-                  , A.BOARD_BODY
-                  , A.BOARD_WRITER_MEMBER_NO
-                  , B.NICKNAME
-                  , A.BOARD_COUNT
-                  , A.CREATED_DATE
-                  , C.ATTACHMENT_NO
-                  , C.ORIGINAL_NAME
-                  , C.SAVED_NAME
-                  , C.SAVE_PATH
-                  , C.FILE_TYPE
-                  , C.THUMBNAIL_PATH
-             FROM TBL_BOARD A
-              JOIN TBL_MEMBER B ON (A.BOARD_WRITER_MEMBER_NO = B.MEMBER_NO)
-              JOIN TBL_ATTACHMENT C ON (A.BOARD_NO = C.REF_BOARD_NO)
-             WHERE A.BOARD_STATUS = 'Y'
-               AND C.ATTACHMENT_STATUS = 'Y'
-               AND A.BOARD_NO = #{ no }
-         </select>
-     -->
+             <select id="selectThumbnailBoardDetail" resultMap="thumbnailBoardResultMap">
+                 SELECT
+                        A.BOARD_NO
+                      , A.BOARD_TITLE
+                      , A.BOARD_BODY
+                      , A.BOARD_WRITER_MEMBER_NO
+                      , B.NICKNAME
+                      , A.BOARD_COUNT
+                      , A.CREATED_DATE
+                      , C.ATTACHMENT_NO
+                      , C.ORIGINAL_NAME
+                      , C.SAVED_NAME
+                      , C.SAVE_PATH
+                      , C.FILE_TYPE
+                      , C.THUMBNAIL_PATH
+                 FROM TBL_BOARD A
+                  JOIN TBL_MEMBER B ON (A.BOARD_WRITER_MEMBER_NO = B.MEMBER_NO)
+                  JOIN TBL_ATTACHMENT C ON (A.BOARD_NO = C.REF_BOARD_NO)
+                 WHERE A.BOARD_STATUS = 'Y'
+                   AND C.ATTACHMENT_STATUS = 'Y'
+                   AND A.BOARD_NO = #{ no }
+             </select>
+
 </mapper>

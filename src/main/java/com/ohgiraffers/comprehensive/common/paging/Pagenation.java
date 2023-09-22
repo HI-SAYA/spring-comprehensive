@@ -1,5 +1,6 @@
 package com.ohgiraffers.comprehensive.common.paging;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Pagenation {
@@ -28,8 +29,12 @@ public class Pagenation {
         int startRow = (page - 1) * limit + 1;
         int endRow = startRow + limit - 1;
 
-        return new SelectCriteria(page, totalCount, limit, buttonAmount, maxPage, startPage, endPage, startRow, endRow, searchMap.get("searchCondition"), searchMap.get("searchValue"));
+        return new SelectCriteria(page, totalCount, limit, buttonAmount, maxPage, startPage, endPage,
+                startRow, endRow, searchMap.get("searchCondition"), searchMap.get("searchValue"));
 
+    }
 
+    public static SelectCriteria getSelectCriteria(int page, int totalCount, int limit, int buttonAmount) {
+        return getSelectCriteria(page, totalCount, limit, buttonAmount, new HashMap<>());
     }
 }
