@@ -30,7 +30,8 @@ public class MemberController {
     private final MessageSourceAccessor messageSourceAccessor;
     private final PasswordEncoder passwordEncoder;
 
-    public MemberController(MemberService memberService, AuthenticationService authenticationService, MessageSourceAccessor messageSourceAccessor, PasswordEncoder passwordEncoder) {
+    public MemberController(MemberService memberService, AuthenticationService authenticationService,
+                            MessageSourceAccessor messageSourceAccessor, PasswordEncoder passwordEncoder) {
         this.memberService = memberService;
         this.authenticationService = authenticationService;
         this.messageSourceAccessor = messageSourceAccessor;
