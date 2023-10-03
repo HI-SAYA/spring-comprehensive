@@ -33,7 +33,7 @@ public class MemberService {
 
     }
 
-
+    /* 회원 정보 수정 */
     @Transactional
     public void modifyMember(MemberDTO modifyMember) throws MemberModifyException {
 
